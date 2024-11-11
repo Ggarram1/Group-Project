@@ -9,15 +9,20 @@ Many papers use mice and other organisms as comparative models for human-centric
 
 ## Data set ## 
 [Datasets with links](https://apps.kaessmannlab.org/evodevoapp/) We will retrieve the datasets from this website to track the differences in the transcriptomes between species. 
-[Datasets with links](https://useast.ensembl.org/index.html) We will use ensemble to identify orthologs across different species in order to utilize the data effectively. 
+[Datasets with links](https://useast.ensembl.org/index.html) We will use ensemble to identify homologs across different species in order to utilize the data effectively. 
 
 ## Software ## 
-[Software with links](https://www.python.org) We will utilize python when deciphering and ordering our datasets to each other.
+~~[Software with links](https://www.python.org) We will utilize python when deciphering and ordering our datasets to each other.~~
+We have found a more easily digestible way to organize our datasets still in R! This will help us in maintaing the same language, as well as keeping our data within the same software. 
 [Software with links](https://www.r-project.org) We will utilize R script when plotting the principle components between species transcriptomes.
 
 ## Proposed Steps ## 
 
-1) Download data for a single organism and determine how to sort each sample by its germ layer and organ type. 
-2) Plot the data to recreate the figure above on a smaller scale - for a single organism - to familiarize ourselves with PCA 
-3) Append all different organismal data to make one master file
-4) Plot the full data!
+1) Download data for organisms ✅
+2) ~~Plot the data to recreate the figure above on a smaller scale - for a single organism - to familiarize ourselves with PCA~~ 
+2) Establish method using ensembl to find homologs  ✅
+3) Join datasets together (Loading…)
+4) Organize data - sort out how to handle both tissue/age/replicate as well as homolog replicates
+5) First use two datasets together for proof of concept, perform VST and plot PCA
+6) Append all different organismal data to make one master file
+7) Plot the full data!
