@@ -21,8 +21,9 @@ Many papers use mice and other organisms as comparative models for human-centric
 1) Download data for organisms ✅
 2) ~~Plot the data to recreate the figure above on a smaller scale - for a single organism - to familiarize ourselves with PCA~~ 
 2) Establish method using ensembl to find homologs  ✅
-3) Join datasets together ⏳
-4) Organize data - sort out how to handle both tissue/age/replicate as well as homolog replicates
-5) First use two datasets together for proof of concept, perform VST and plot PCA
+3) Join datasets together ✅
+4) Organize data - sort out how to handle both tissue/age/replicate as well as homolog replicates ✅
+ --> folllowing recommendations, we are using the tissue/age/replicate details as metadata and only using 1:1 homologs
+5) First use two datasets together for proof of concept, perform VST and plot PCA ⏳
 6) Append all different organismal data to make one master file
 7) Plot the full data!
