@@ -34,21 +34,6 @@ human_gene_ids <- Human_Exp$Names
 human_homologs <- get_homologs(human_gene_ids, 'hsapiens_gene_ensembl', 'mmusculus_gene_ensembl')
 head(human_homologs)
 
-#rename for clarity
-Mouse_Exp <- Mouse_Exp %>%
-  rename(ensembl_mm_gene_id = Names)
-
-#left join Mouse_Exp with human homologs to get corresponding human Ensembl gene IDs
-Mouse_human <- left_join(Mouse_Exp, human_homologs, 
-                         by = c("ensembl_mm_gene_id" = "mmusculus_homolog_ensembl_gene"))
-
-#mutate the column to use human gene IDs where available
-Mouse_human <- Mouse_human %>%
-  mutate(ensembl_mm_gene_id = ifelse(!is.na(ensembl_gene_id), ensembl_gene_id, ensembl_mm_gene_id))
-
-#check merged data
-head(Mouse_human)
-
 #first, take the human homologs from before and pull out those which only appear
 #one time using the summarize and filter functions
 Unique_human <- human_homologs %>% 
@@ -70,3 +55,17 @@ Unique_mouse <- human_homologs %>%
 #those which appear in both organisms only one time
 unique_homologs <- human_homologs %>% 
   filter(ensembl_gene_id %in% Unique_human & mmusculus_homolog_ensembl_gene %in% Unique_mouse)
+
+#left join Mouse_Exp with human homologs to get corresponding human Ensembl gene IDs
+Mouse_human <- left_join(unique_homologs, Mouse_Exp,
+                         by = c("mmusculus_homolog_ensembl_gene" = "ensembl_mm_gene_id"))
+#left join Human_Exp with other homologs
+Mouse_human <- left_join(Mouse_human, Human_Exp,
+                         by = c("ensembl_gene_id" = "Names"))
+
+#mutate the column to use human gene IDs where available
+Mouse_human <- Mouse_human %>%
+  mutate(ensembl_mm_gene_id = ifelse(!is.na(ensembl_gene_id), ensembl_gene_id, ensembl_mm_gene_id))
+
+Mouse_human_data <- Mouse_human %>% 
+  select(-c("external_gene_name", "mmusculus_homolog_ensembl_gene", "mmusculus_homolog_associated_gene_name"))
