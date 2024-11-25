@@ -76,8 +76,6 @@ sample_names <- colnames(count_matrix_clean)
 age <- str_extract(sample_names, "(?<=\\.)[^.]+")
 organism <- ifelse(str_starts(age, "e") | str_starts(age, "P"), "Mouse", "Human")
 organism <- factor(organism)
-colData$age <- factor(age)
-head(colData)
 
 #create colData with organ, age, and organism as factors
 colData <- data.frame(
@@ -86,6 +84,8 @@ colData <- data.frame(
   organism = organism,           
   row.names = colnames(count_matrix_clean)
 )
+head(colData)
+colData$age <- factor(age)
 head(colData)
 
 #DESeq returned an error that there was an NA value in the colData
@@ -108,6 +108,8 @@ dds <- DESeqDataSetFromMatrix(
   colData = DataFrame(colData), 
   design = ~ organ + age
 )
+#apply VST normalization
+vsd <- vst(dds)
 pca_data <- plotPCA(vsd, intgroup = c("organ", "organism", "age"), returnData = TRUE)
 #since these data are not helpful for comparing ages across organisms, I am going to
 #make a new data frame for the unified ages
@@ -132,13 +134,22 @@ pca_data$age_numeric <- recode(pca_data$age,
                                "youngMidAge" = 21, "Senior" = 22)
 pca_data$age_numeric <- as.numeric(as.character(pca_data$age_numeric))
 summary(pca_data$age_numeric)
-#apply VST normalization
-vsd <- vst(dds)
+unique(pca_data$organ)
+pca_data$organ_group <- recode(
+  pca_data$organ, 
+  "Brain" = "#1f77b4",       
+  "Cerebellum" = "#1f97b4",  
+  "Heart" = "#ff9f6e",      
+  "Testis" = "#ff5f6e", 
+  "Ovary" = "#ff5f6e",
+  "Liver" = "#9ba52c",       
+  "Kidney" = "#2ca02c" 
+)
 pca_data$age_numeric <- as.numeric(as.character(pca_data$age_numeric))
 #pca_data$age_numeric <- as.numeric(as.character(pca_data$age))
 #unique(pca_data$age)
 #make PCA look closer to published PCA
-ggplot(pca_data, aes(x = PC1, y = PC2, color = organ, shape = organism, size = as.factor(age_numeric))) +
+ggplot(pca_data, aes(x = PC1, y = PC2, color = organ_group, shape = organism, size = as.factor(age_numeric))) +
   geom_point(alpha = 0.7) + 
   labs(
     x = paste("PC1 (", round(pca_data$percentVar[1] * 100, 1), "37% variance explained)", sep = ""),
@@ -152,4 +163,5 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = organ, shape = organism, size = a
     axis.text = element_text(size = 12)  
   ) +
   scale_shape_manual(values = c(16, 17)) +
-  scale_size_discrete(range = c(3, 8)) 
+  scale_size_discrete(range = c(3, 8)) +
+  scale_color_identity() 
