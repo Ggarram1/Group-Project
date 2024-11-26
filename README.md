@@ -27,3 +27,7 @@ Many papers use mice and other organisms as comparative models for human-centric
 5) First use two datasets together for proof of concept, perform VST and plot PCA ✅
 6) Append all different organismal data to make one master file ⏳
 7) Plot the full data!
+
+
+## Presentation Link ##
+https://docs.google.com/presentation/d/134gtdcx9AfGN8t4SqgLmlcO4cLPa38ICfstJ2mVbg4k/edit#slide=id.g319c96af645_0_46
