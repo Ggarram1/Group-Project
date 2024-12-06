@@ -28,7 +28,6 @@ get_homologs <- function(gene_ids, source_dataset, target_one, target_two) {
 #load in human mouse expression data
 Human_Exp <- read_delim("Human_rpkm.txt")
 Mouse_Exp <- read_delim("Mouse_rpkm.txt")
-Chicken_Exp <- read_delim("Chicken_rpkm.txt")
 Macaque_Exp <- read_delim("Macaque_rpkm.txt")
 Opossum_Exp <- read_delim("Opossum_rpkm.txt")
 
@@ -42,8 +41,6 @@ human_to_macaque_homologs <- get_homologs(human_gene_ids, 'hsapiens_gene_ensembl
                                           'mmulatta_homolog_ensembl_gene', 'mmulatta_homolog_associated_gene_name')
 human_to_opossum_homologs <- get_homologs(human_gene_ids, 'hsapiens_gene_ensembl', 
                                           'mdomestica_homolog_ensembl_gene', 'mdomestica_homolog_associated_gene_name')
-human_to_chicken_homologs <- get_homologs(human_gene_ids, 'hsapiens_gene_ensembl',
-                                          'ggallus_homolog_ensembl_gene', 'ggallus_homolog_associated_gene_name')
 
 #Honestly when we get to this step, lets just copy paste and change names 
 
@@ -63,13 +60,6 @@ Unique_mouse <- human_to_mouse_homologs %>%
   summarize(n()) %>% 
   filter(`n()` == 1) %>% 
   pull(mmusculus_homolog_ensembl_gene)
-
-Unique_chicken <- human_to_chicken_homologs %>% 
-  dplyr::select(ggallus_homolog_ensembl_gene) %>% 
-  group_by(ggallus_homolog_ensembl_gene) %>% 
-  summarize(n()) %>% 
-  filter(`n()` == 1) %>% 
-  pull(ggallus_homolog_ensembl_gene)
 
 Unique_macaque <- human_to_macaque_homologs %>% 
   dplyr::select(mmulatta_homolog_ensembl_gene) %>% 
@@ -95,9 +85,6 @@ Unique_opossum <- human_to_opossum_homologs %>%
 unique_mouse_homologs <- human_to_mouse_homologs %>% 
   filter(ensembl_gene_id %in% Unique_human & mmusculus_homolog_ensembl_gene %in% Unique_mouse)
 
-unique_chicken_homologs <- human_to_chicken_homologs %>% 
-  filter(ensembl_gene_id %in% Unique_human & ggallus_homolog_ensembl_gene %in% Unique_chicken)
-
 unique_macaque_homologs <- human_to_macaque_homologs %>% 
   filter(ensembl_gene_id %in% Unique_human & mmulatta_homolog_ensembl_gene %in% Unique_macaque)
 
@@ -105,11 +92,10 @@ unique_opossum_homologs <- human_to_opossum_homologs %>%
   filter(ensembl_gene_id %in% Unique_human & mdomestica_homolog_ensembl_gene %in% Unique_opossum)
 
 human_to_mouse_homologs <- human_to_mouse_homologs %>% distinct(ensembl_gene_id, mmusculus_homolog_ensembl_gene, .keep_all = TRUE)
-human_to_chicken_homologs <- human_to_chicken_homologs %>% distinct(ensembl_gene_id, ggallus_homolog_ensembl_gene, .keep_all = TRUE)
 human_to_macaque_homologs <- human_to_macaque_homologs %>% distinct(ensembl_gene_id, mmulatta_homolog_ensembl_gene, .keep_all = TRUE)
 human_to_opossum_homologs <- human_to_opossum_homologs %>% distinct(ensembl_gene_id, mdomestica_homolog_ensembl_gene, .keep_all = TRUE)
 # Example: Left joining multiple datasets based on human homologs (ensembl_gene_id)
-datasets <- list(unique_mouse_homologs, unique_chicken_homologs, unique_macaque_homologs, unique_opossum_homologs)
+datasets <- list(unique_mouse_homologs, unique_macaque_homologs, unique_opossum_homologs)
 # Perform the left join using Reduce()
 combined_data <- Reduce(function(x, y) {
   left_join(x, y, by = "ensembl_gene_id")  # Join based on human homolog gene ID
@@ -117,18 +103,16 @@ combined_data <- Reduce(function(x, y) {
 
 combined_data <- combined_data %>%
   filter(!is.na(mmusculus_homolog_ensembl_gene) & 
-           !is.na(ggallus_homolog_ensembl_gene) & 
            !is.na(mmulatta_homolog_ensembl_gene) & 
            !is.na(mdomestica_homolog_ensembl_gene))
 
-combined_data$ggallus_homolog_ensembl_gene <- trimws(combined_data$ggallus_homolog_ensembl_gene)
-Chicken_Exp$Names <- trimws(Chicken_Exp$Names)
-Chicken_combo <- combined_data %>% 
-  left_join(Chicken_Exp, by = c("ggallus_homolog_ensembl_gene" = "Names"))
+#combined_data$ggallus_homolog_ensembl_gene <- trimws(combined_data$ggallus_homolog_ensembl_gene)
+#Chicken_Exp$Names <- trimws(Chicken_Exp$Names)
+#Chicken_combo <- combined_data %>% 
+#  left_join(Chicken_Exp, by = c("ggallus_homolog_ensembl_gene" = "Names"))
 
 Combined_Exp <- combined_data %>% 
   left_join(Mouse_Exp, by = c("mmusculus_homolog_ensembl_gene" = "Names")) %>%
-  left_join(Chicken_Exp, by = c("ggallus_homolog_ensembl_gene" = "Names")) %>%
   left_join(Macaque_Exp, by = c("mmulatta_homolog_ensembl_gene" = "Names")) %>%
   left_join(Opossum_Exp, by = c("mdomestica_homolog_ensembl_gene" = "Names"))
             
@@ -171,8 +155,7 @@ Human_to_all <- True_expression %>%
 
 All_organism_data <- Human_to_all %>% 
   dplyr::select(-c("external_gene_name.x", "mmusculus_homolog_ensembl_gene", "mmusculus_homolog_associated_gene_name", 
-                   "external_gene_name.y", "ggallus_homolog_ensembl_gene", "ggallus_homolog_associated_gene_name",
-                   "external_gene_name.x.x", "mmulatta_homolog_ensembl_gene", "mmulatta_homolog_associated_gene_name", 
-                   "external_gene_name.y.y", "mdomestica_homolog_ensembl_gene", "mdomestica_homolog_associated_gene_name"))
+                   "external_gene_name", "mmulatta_homolog_ensembl_gene", "mmulatta_homolog_associated_gene_name", 
+                   "external_gene_name.y", "mdomestica_homolog_ensembl_gene", "mdomestica_homolog_associated_gene_name"))
 
-write_delim(All_organism_data, "FiveOrganism_expressionData.txt", delim = "\t")
+write_delim(All_organism_data, "FourOrganism_expressionData.txt", delim = "\t")
